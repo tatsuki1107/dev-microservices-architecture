@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  fastapi:
+    container_name: token_auth
+    build: .
+    volumes:
+      - ./:/app
+    ports:
+      - 5000:5000
+    tty: true
