@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  fastapi:
+    container_name: main-fastpai
+    build: ./FastAPI
+    volumes:
+      - ./FastAPI:/app
+    ports:
+      - 5000:5000
+    tty: true
+
+  main-react:
+    container_name: main-react
+    image: node:14.13.1
+    volumes:
+      - ./front/main-react:/home/app/frontend
+    ports:
+      - 3000:3000
+    working_dir: /home/app/frontend
+    command: sh -c "npm start"

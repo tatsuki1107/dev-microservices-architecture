@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  todo-server:
+    container_name: todo-server
+    build: ./backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - 5001:5001
+    tty: true
+
+  micro-react:
+    container_name: micro-react
+    image: node:14.13.1
+    ports:
+      - 3001:3001
+    volumes:
+      - ./frontend/:/home/app/frontend
+    working_dir: /home/app/frontend
+    command: sh -c "PORT=3001 npm start"
