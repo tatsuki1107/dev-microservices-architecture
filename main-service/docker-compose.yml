@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   fastapi:
-    container_name: main-fastpai
+    container_name: main-fastapi
     build: ./FastAPI
     volumes:
       - ./FastAPI:/app

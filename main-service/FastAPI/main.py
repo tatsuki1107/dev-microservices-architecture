@@ -1,12 +1,13 @@
 from typing import Optional
 from datetime import datetime, timedelta
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status, Response, Cookie
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
+from utils import OAuth2PasswordBearerWithCookie
 
 app = FastAPI()
 app.add_middleware(
@@ -29,6 +30,10 @@ fake_users_db = {
         "disabled": False,
     }
 }
+
+
+class AccessToken(BaseModel):
+    access_token: str
 
 
 class Token(BaseModel):
@@ -59,6 +64,10 @@ def get_user(db, username: str):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
+
+
+def get_cookie_token(access_token: Optional[str] = Cookie(None)):
+    access_token
 
 
 async def get_current_user(token: str = Depends(OAuth2_scheme)):
@@ -113,7 +122,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 @app.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(
         fake_users_db, form_data.username, form_data.password)
     if not user:
@@ -126,10 +135,44 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        httponly=True,
+        secure=True
+    )
 
     return {"access_token": access_token, "token_type": "bearer"}
 
 
 @app.get("/users/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
+    return current_user
+
+
+def get_current_user_from_token(
+    token: str = Depends(OAuth2_scheme)
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+    )
+    try:
+        payload = jwt.decode(
+            token, "SECRET_KEY123", algorithms="HS256"
+        )
+        username: str = payload.get("sub")
+        print("username/email extracted is ", username)
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    user = get_user(username=username, db=fake_users_db)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+@app.get('/current_user')
+def current_user(current_user: User = Depends(get_current_user_from_token)):
     return current_user
