@@ -18,4 +18,4 @@ services:
     volumes:
       - ./frontend/:/home/app/frontend
     working_dir: /home/app/frontend
-    command: sh -c "PORT=3001 npm start"
+    command: sh -c "PORT=3001 npm start "

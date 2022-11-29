@@ -8,17 +8,20 @@ from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from utils import OAuth2PasswordBearerWithCookie
+import requests
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
 )
 #app.mount("/static", StaticFiles(directory="static"), name="static")
-OAuth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+OAuth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 fake_users_db = {
@@ -28,6 +31,7 @@ fake_users_db = {
         "email": "xxx@example.com",
         "hashed_password": '$2b$12$k8TH0MdVehAesfP3OeaSwO14wtPqdXq/NYiywZcF4ou8MQ8FggIXS',
         "disabled": False,
+        "micro_id": "123"
     }
 }
 
@@ -50,10 +54,20 @@ class User(BaseModel):
     email: Optional[str] = None
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
+    micro_id: str
+
+
+class todoUser(BaseModel):
+    micro_id: str
+    username: str
 
 
 class UserInDB(User):
     hashed_password: str
+
+
+class Micro_id(BaseModel):
+    micro_id: str
 
 
 def get_user(db, username: str):
@@ -64,10 +78,6 @@ def get_user(db, username: str):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
-
-
-def get_cookie_token(access_token: Optional[str] = Cookie(None)):
-    access_token
 
 
 async def get_current_user(token: str = Depends(OAuth2_scheme)):
@@ -139,7 +149,8 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
         key="access_token",
         value=f"Bearer {access_token}",
         httponly=True,
-        secure=True
+        secure=True,
+        samesite="strict"
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
@@ -150,29 +161,15 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 
-def get_current_user_from_token(
-    token: str = Depends(OAuth2_scheme)
-):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-    )
-    try:
-        payload = jwt.decode(
-            token, "SECRET_KEY123", algorithms="HS256"
-        )
-        username: str = payload.get("sub")
-        print("username/email extracted is ", username)
-        if username is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-    user = get_user(username=username, db=fake_users_db)
-    if user is None:
-        raise credentials_exception
-    return user
-
-
-@app.get('/current_user')
-def current_user(current_user: User = Depends(get_current_user_from_token)):
+@app.get('/todo_auth', response_model=todoUser)
+async def todo_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+
+# todoアプリとのAPIs
+@app.post('/todos')
+async def get_todos(body: Micro_id):
+    header = {'Content-Type': 'application/json'}
+    req = await requests.post("http://localhost:5001/user", headers=header, json=body)
+    if req.status_code == 200:
+        return req

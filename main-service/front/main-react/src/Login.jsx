@@ -7,9 +7,7 @@ const defaultState = { "username": "", "password": "" }
 
 const Login = () => {
   const [state, setState] = useState(defaultState);
-  const { onLogin } = useAuth()
-
-  //if (cookies.token) return <Navigate to="/" />
+  const { user, onLogin } = useAuth()
 
   return (
     <>
@@ -24,7 +22,6 @@ const Login = () => {
         />
         <button onClick={() => onLogin(state)}>送信</button>
       </div>
-
     </>
   );
 }
