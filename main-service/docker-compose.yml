@@ -9,6 +9,8 @@ services:
     ports:
       - 5000:5000
     tty: true
+    networks:
+      - another_api
 
   main-react:
     container_name: main-react
@@ -19,3 +21,7 @@ services:
       - 3000:3000
     working_dir: /home/app/frontend
     command: sh -c "npm start"
+
+networks:
+  another_api:
+    external: true

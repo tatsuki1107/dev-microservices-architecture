@@ -14,7 +14,10 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "http://todo-server:5001",
+        "http://localhost:3001",
+        "http://main-react"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -164,12 +167,3 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @app.get('/todo_auth', response_model=todoUser)
 async def todo_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
-
-
-# todoアプリとのAPIs
-@app.post('/todos')
-async def get_todos(body: Micro_id):
-    header = {'Content-Type': 'application/json'}
-    req = await requests.post("http://localhost:5001/user", headers=header, json=body)
-    if req.status_code == 200:
-        return req

@@ -4,7 +4,7 @@ import axios from "axios";
 
 const AuthContext = createContext();
 export const AUTHURL = "http://localhost:5000";
-const config = {
+export const config = {
   headers: {
     "Content-Type": "application/x-www-form-urlencoded"
   }

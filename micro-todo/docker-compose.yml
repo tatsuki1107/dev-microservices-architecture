@@ -9,6 +9,8 @@ services:
     ports:
       - 5001:5001
     tty: true
+    networks:
+      - another_api
 
   micro-react:
     container_name: micro-react
@@ -19,3 +21,7 @@ services:
       - ./frontend/:/home/app/frontend
     working_dir: /home/app/frontend
     command: sh -c "PORT=3001 npm start "
+
+networks:
+  another_api:
+    external: true

@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Dict
+from urllib import response
 from urllib.request import Request
 from fastapi import FastAPI, Depends, HTTPException
 from starlette.middleware.cors import CORSMiddleware
-from models import User, Todos
+from models import User, Todos, Micro_id
 
 
 app = FastAPI()
@@ -43,6 +44,14 @@ def get_user(res: User):
     return todos
 
 
-@app.get('/sample_todo')
-async def get_todo():
-    return {"todo": "go to schoole!"}
+# main-servieとのAPI
+
+
+@app.post('/user_todo', response_model=Todos)
+async def get_todo(req: Micro_id):
+    user_todos = fake_todo_db[req.micro_id]
+    first_todo = user_todos["todos"][0]
+    return first_todo
+    user_todos = fake_todo_db[req.micro_id]
+    todo = user_todos["todos"]
+    return todo
