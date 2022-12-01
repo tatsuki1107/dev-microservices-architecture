@@ -1,24 +1,24 @@
 # dev-microservices-architecture
 
 ## 概要
-./mainserviceにてある個人サイトが動いていると仮定。
-./micro-todo下、すなわちtodoアプリを既存アプリから切り離しマイクロサービス化
+./mainserviceにてある個人サイトが動いていると仮定。  
+./micro-todo下、すなわちtodoアプリを既存アプリから切り離しマイクロサービス化  
 
 ### 認証・認可
-・認証はFastAPIのOAuth2ライブラリをちょっといじってcookieヘッダにjwtをのせた。(期限は一時間)
-・フロントはSPAなのでcookieの値を読み取らず、http通信のheaderを介してauth検証
-・mainserviceもmicro-todoもauthサーバにて認証認可を行う
-・クライアントがcookieをバケツリレーする形でmicro-todoでcookieをauthサーバに検証
+・認証はFastAPIのOAuth2ライブラリをちょっといじってcookieヘッダにjwtをのせた。(期限は一時間)  
+・フロントはSPAなのでcookieの値を読み取らず、http通信のheaderを介してauth検証  
+・mainserviceもmicro-todoもauthサーバにて認証認可を行う  
+・クライアントがcookieをバケツリレーする形でmicro-todoでcookieをauthサーバに検証  
 
 ### API
-・main-serviceで認可が取れてれば、micro-todoのリソースを読み取れる。（ここでは最新のtodoを読める）
+・main-serviceで認可が取れてれば、micro-todoのリソースを読み取れる。（ここでは最新のtodoを読める）  
 ・user_idに紐付いたmicro_idを外部キーとしてmicro-todoリソースを読み取る
 
 ### 課題
-・micro-todoにてセッションが切れたあと、ログインし直すのだが、micro-todoへリダイレクトできない。
-　ー　　プロキシを作る？　SPA外の動的ルーティングがわからん。nginxでやりたい
-・EC2などのサーバにのせてさらに環境をわけたい
-　ー　開発環境でのOAuthはつかめてきたので、本版環境との統合
+・micro-todoにてセッションが切れたあと、ログインし直すのだが、micro-todoへリダイレクトできない。  
+　ー　　プロキシを作る？　SPA外の動的ルーティングがわからん。nginxでやりたい  
+・EC2などのサーバにのせてさらに環境をわけたい  
+　ー　開発環境でのOAuthはつかめてきたので、本版環境との統合  
 
 # 参考文献
 1. https://fabeee.co.jp/column/employee-blog/mattsun01/
