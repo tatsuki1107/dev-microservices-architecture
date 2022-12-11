@@ -1,14 +1,13 @@
 from typing import Optional
 from datetime import datetime, timedelta
-from fastapi import Depends, FastAPI, HTTPException, status, Response, Cookie
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, FastAPI, HTTPException, status, Response
+from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
-from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
+
 from utils import OAuth2PasswordBearerWithCookie
-import requests
+from models import User, UserInDB, todoUser, Token, TokenData
 
 app = FastAPI()
 app.add_middleware(
@@ -23,7 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-#app.mount("/static", StaticFiles(directory="static"), name="static")
+
 OAuth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -37,40 +36,6 @@ fake_users_db = {
         "micro_id": "123"
     }
 }
-
-
-class AccessToken(BaseModel):
-    access_token: str
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
-
-
-class User(BaseModel):
-    username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
-    micro_id: str
-
-
-class todoUser(BaseModel):
-    micro_id: str
-    username: str
-
-
-class UserInDB(User):
-    hashed_password: str
-
-
-class Micro_id(BaseModel):
-    micro_id: str
 
 
 def get_user(db, username: str):
@@ -91,7 +56,6 @@ async def get_current_user(token: str = Depends(OAuth2_scheme)):
     )
     try:
         payload = jwt.decode(token, "SECRET_KEY123", algorithms="HS256")
-        print(f'### token = {token}, payload = {payload}')
         username: str = payload.get("sub")
         if username is None:
             raise credentials_expection

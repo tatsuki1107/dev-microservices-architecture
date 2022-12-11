@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "./AuthProvider";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { AUTHURL, config } from "./AuthProvider";
 
 const HomePage = () => {
   axios.defaults.withCredentials = true;
   const TODOURL = "http://localhost:5001"
   const { user } = useAuth();
   const [todo, setTodo] = useState({})
-  const navigate = useNavigate();
-  //const config = {
-  // headers: { "Content-Type": "application/json" }
-  //}
 
   const getTodo = async () => {
     try {

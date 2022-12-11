@@ -9,6 +9,7 @@ const App = () => {
   axios.defaults.withCredentials = true;
   const [user, setUser] = useState({})
   const [todos, setTodos] = useState([])
+
   useEffect(() => {
     (async () => {
       try {

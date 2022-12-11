@@ -1,7 +1,5 @@
-from typing import List, Dict
-from urllib import response
-from urllib.request import Request
-from fastapi import FastAPI, Depends, HTTPException
+from typing import List
+from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from models import User, Todos, Micro_id
 
@@ -52,6 +50,3 @@ async def get_todo(req: Micro_id):
     user_todos = fake_todo_db[req.micro_id]
     first_todo = user_todos["todos"][0]
     return first_todo
-    user_todos = fake_todo_db[req.micro_id]
-    todo = user_todos["todos"]
-    return todo
