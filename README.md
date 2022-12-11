@@ -2,6 +2,8 @@
 
 ## OAuth構成図  
 
+![image](https://user-images.githubusercontent.com/79680980/206892749-ff7004ef-68fb-4f2a-9b5e-7b79e1de8950.png)
+
 
 ## 概要
 ./mainserviceにてある個人サイトが動いていると仮定。  
